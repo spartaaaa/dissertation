@@ -1,0 +1,30 @@
+import paho.mqtt.client as mqtt
+
+
+broker = '192.168.137.254'
+port = 1883
+username = 'qwerty'
+password = '12qwerty21'
+
+def on_connect(client, userdata, flags, rc):
+    print("Connected with result code " + str(rc))
+    client.subscribe("testTopic")
+
+def on_message(client, userdata, msg):
+    print(msg.payload.decode())  
+
+def run_mqtt_client():
+    client = mqtt.Client()
+    client.username_pw_set(username, password)
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    client.connect(broker, port, 60)
+
+    try:
+        client.loop_forever()
+    except KeyboardInterrupt:
+        print("MQTT client stopped by user")
+
+if __name__ == '__main__':
+    run_mqtt_client()
