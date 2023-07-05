@@ -27,7 +27,7 @@ def connect_mqtt():
     return client
 
 def create_table(cursor):
-    cursor.execute('''CREATE TABLE IF NOT EXISTS aecn (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS authentication (
                         time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         size INTEGER,
                         msg INTEGER
