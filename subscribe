@@ -24,7 +24,7 @@ def run_mqtt_client():
     try:
         client.loop_forever()
     except KeyboardInterrupt:
-        print("Subscription 
+        print("Subscription stopped by user")
         client.loop_stop()
 
 if __name__ == '__main__':
