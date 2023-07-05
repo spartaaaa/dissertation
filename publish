@@ -27,14 +27,14 @@ def connect_mqtt():
     return client
 
 def create_table(cursor):
-    cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS aecn (
                         time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         size INTEGER,
-                        msg REAL
+                        msg INTEGER
                     )''')
 
 def insert_data(cursor, size, msg):
-    cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (str(size), str(msg)))
+    cursor.execute("INSERT INTO authentication (size, msg) VALUES (?, ?)", (str(size), str(msg)))
 
 def publish(client, cursor):
     msg_count = 1

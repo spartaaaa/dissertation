@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-
+import sqlite3
 
 broker = '192.168.137.254'
 port = 1883
@@ -16,13 +16,40 @@ def on_message(client, userdata, msg):
 def run_mqtt_client():
     client = mqtt.Client()
     client.username_pw_set(username, password)
+
+    # Connect to the SQLite database    
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+
+    # Create the table if it doesn't exist
+    create_table(cursor)
+
+    # Publish messages and store data in the database
+    publish(client, cursor)
+
+    # Commit and close the database connection
+    conn.commit()
+    conn.close()
+
     client.on_connect = on_connect
     client.on_message = on_message
 
     client.connect(broker, port, 60)
 
+def create_table(cursor):
+    cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
+                        time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        size INTEGER,
+                        msg REAL
+                    )''')
+
+def insert_data(cursor, size, msg):
+    cursor.execute("INSERT INTO r_authentication (size, msg) VALUES (?, ?)", (str(size), str(msg)))
+
     try:
         client.loop_forever()
+        size = len(msg)
+        insert_data(cursor, size, msg)  # Insert data into the database
     except KeyboardInterrupt:
         print("Subscription stopped by user")
         client.loop_stop()
