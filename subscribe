@@ -1,30 +1,110 @@
-import paho.mqtt.client as mqtt
-
+import random
+import time
+import RPi.GPIO as GPIO
+import sqlite3
+from paho.mqtt import client as mqtt_client
 
 broker = '192.168.137.254'
 port = 1883
+topic = "testTopic"
+# generate client ID with pub prefix randomly
+client_id = f'python-mqtt-{random.randint(0, 1000)}'
 username = 'qwerty'
 password = '12qwerty21'
 
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
-    client.subscribe("testTopic")
+trigPin = 16
+echoPin = 18
+MAX_DISTANCE = 220          # define the maximum measuring distance, unit: cm
+timeOut = MAX_DISTANCE*60   # calculate timeout according to the maximum measuring dis>
 
-def on_message(client, userdata, msg):
-    print(msg.payload.decode())  # Decode the payload and print as a string
+def pulseIn(pin, level, timeOut): # obtain pulse time of a pin under timeOut
+    t0 = time.time()
+    while GPIO.input(pin) != level:
+        if (time.time() - t0) > timeOut * 0.000001:
+            return 0
+    t0 = time.time()
+    while GPIO.input(pin) == level:
+        if (time.time() - t0) > timeOut * 0.000001:
+            return 0
+    pulseTime = (time.time() - t0) * 1000000
+    return pulseTime
 
-def run_mqtt_client():
-    client = mqtt.Client()
+def getSonar():     # get the measurement results of ultrasonic module, with unit: cm
+    GPIO.output(trigPin, GPIO.HIGH)      # make trigPin output 10us HIGH level
+    time.sleep(0.00001)     # 10us
+    GPIO.output(trigPin, GPIO.LOW) # make trigPin output LOW level
+    pingTime = pulseIn(echoPin, GPIO.HIGH, timeOut)   # read plus time of echoPin
+    distance = pingTime * 340.0 / 2.0 / 10000.0     # calculate distance with s>
+    return float(distance)
+
+def setup():
+    GPIO.setmode(GPIO.BOARD)      # use PHYSICAL GPIO Numbering
+    GPIO.setup(trigPin, GPIO.OUT)   # set trigPin to OUTPUT mode
+    GPIO.setup(echoPin, GPIO.IN)    # set echoPin to INPUT mode
+
+def connect_mqtt():
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("Connected to MQTT Broker!")
+        else:
+            print("Failed to connect, return code %d\n", rc)
+
+    client = mqtt_client.Client(client_id)
     client.username_pw_set(username, password)
     client.on_connect = on_connect
-    client.on_message = on_message
+    client.connect(broker, port)
+    return client
 
-    client.connect(broker, port, 60)
+def create_table(cursor):
+    cursor.execute('''CREATE TABLE IF NOT EXISTS para (
+                        time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        size INTEGER,
+                        distance REAL
+                    )''')
 
+def insert_data(cursor, size, distance):
+    formatted_distance = "{:.2f}".format(distance)  # Format distance with two decimal places
+    cursor.execute("INSERT INTO para (size, distance) VALUES (?, ?)", (str(size), formatted_distance))
+
+def publish(client, cursor):
+    msg_count = 0
     try:
-        client.loop_forever()
+        while True:
+            distance = getSonar()
+            time.sleep(1)
+            distance = round(float(distance),2)
+            msg = f"The distance is: '{distance}' cm"
+            size = len(msg)
+            result = client.publish(topic, msg)
+            status = result[0]
+            time.sleep(1)
+            if status == 0:
+                print(f"Send `{msg}` to topic `{topic}`")
+            else:
+                print(f"Failed to send message to topic {topic}")
+            insert_data(cursor, size, distance)  # Insert data into the database
+            msg_count += 1
     except KeyboardInterrupt:
-        print("Subscription stopped by user")
+        print("Publishing stopped by user")
+
+def run():
+    setup()
+    client = connect_mqtt()
+    client.loop_start()
+
+    # Connect to the SQLite database
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+
+    # Create the table if it doesn't exist
+    create_table(cursor)
+
+    # Publish messages and store data in the database
+    publish(client, cursor)
+
+    # Commit and close the database connection
+    conn.commit()
+    conn.close()
 
 if __name__ == '__main__':
-    run_mqtt_client()
+    run()
