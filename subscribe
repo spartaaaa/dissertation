@@ -24,9 +24,6 @@ def run_mqtt_client():
     # Create the table if it doesn't exist
     create_table(cursor)
 
-    # Publish messages and store data in the database
-    publish(client, cursor)
-
     # Commit and close the database connection
     conn.commit()
     conn.close()
