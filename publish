@@ -1,5 +1,6 @@
 import random
 import time
+import sqlite3
 
 from paho.mqtt import client as mqtt_client
 
@@ -25,26 +26,52 @@ def connect_mqtt():
     client.connect(broker, port)
     return client
 
+def create_table(cursor):
+    cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
+                        time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        size INTEGER,
+                        msg REAL
+                    )''')
 
-def publish(client):
+def insert_data(cursor, size, msg):
+    cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (str(size), str(msg)))
+
+def publish(client, cursor):
     msg_count = 1
-    while True:
-        time.sleep(1)
-        msg = f"{msg_count}"
-        result = client.publish(topic, msg)
-        status = result[0]
-        if status == 0:
-            print(f"Send `{msg}` to topic `{topic}`")
-        else:
-            print(f"Failed to send message to topic {topic}")
-        msg_count *= 10
-
+    try:
+        while True:
+            time.sleep(1)
+            msg = f"{msg_count}"
+            size = len(msg)
+            result = client.publish(topic, msg)
+            status = result[0]
+            if status == 0:
+                print(f"Send `{msg}` to topic `{topic}`")
+            else:
+                print(f"Failed to send message to topic {topic}")
+            insert_data(cursor, size, msg)  # Insert data into the database
+            msg_count *= 10
+    except KeyboardInterrupt:
+        print("Publishing stopped by user")
 
 def run():
     client = connect_mqtt()
     client.loop_start()
-    publish(client)
 
+    # Connect to the SQLite database
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+
+    # Create the table if it doesn't exist
+    create_table(cursor)
+
+    # Publish messages and store data in the database
+    publish(client, cursor)
+
+    # Commit and close the database connection
+    conn.commit()
+    conn.close()
 
 if __name__ == '__main__':
     run()
+
