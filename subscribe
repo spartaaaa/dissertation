@@ -40,7 +40,7 @@ def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
                         time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         size INTEGER,
-                        msg REAL
+                        msg INTEGER
                     )''')
 
 def insert_data(cursor, size, msg):
