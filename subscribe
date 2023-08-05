@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import sqlite3
 
-broker = '192.168.137.254'
+broker = '192.168.1.7'
 port = 1883
 username = 'qwerty'
 password = '12qwerty21'
