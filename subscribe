@@ -7,6 +7,9 @@ port = 1883
 username = 'qwerty'
 password = '12qwerty21'
 
+# Get the current process ID
+process_id = psutil.Process().pid
+
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
     client.subscribe("testTopic")
@@ -17,6 +20,11 @@ def on_message(client, userdata, msg):
 
     # Get the size of the received message
     size = len(payload_str)
+
+    # Get resource usage of the MQTT process
+    process = psutil.Process(process_id)
+    cpu_percent = process.cpu_percent()
+    memory_percent = process.memory_percent()
 
     # Convert the size to a string
     size_str = str(size)
@@ -56,11 +64,14 @@ def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
                         time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         size INTEGER,
-                        msg TXT
+                        msg TEXT,
+                        cpu_percent REAL,
+                        memory_percent REAL
                     )''')
 
-def insert_data(size, payload_str):
-        cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, payload_str))
+def insert_data(size, payload_str, cpu_percent, memory_percent):
+    cursor.execute("INSERT INTO rece (size, msg, cpu_percent, memory_percent) VALUES (?, ?, ?, ?)",
+                   (size, payload_str, cpu_percent, memory_percent))
 
 if __name__ == '__main__':
 
