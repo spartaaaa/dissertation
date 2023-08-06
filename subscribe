@@ -22,6 +22,9 @@ def on_message(client, userdata, msg):
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
 
+    # Create the table if it doesn't exist
+    create_table(cursor)
+
     insert_data(size, msg)  # Insert data into the database
 
     # Commit and close the database connection
@@ -58,8 +61,5 @@ def insert_data(size, msg):
         cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, msg))
 
 if __name__ == '__main__':
-
-    # Create the table if it doesn't exist
-    create_table(cursor)
 
     run_mqtt_client()
