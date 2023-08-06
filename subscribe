@@ -1,7 +1,6 @@
 import paho.mqtt.client as mqtt
 import sqlite3
-import sys
-import psutil
+import psutil  # Import the psutil library
 
 broker = '192.168.1.7'
 port = 1883
@@ -22,13 +21,13 @@ def on_message(client, userdata, msg):
     # Get the size of the received message
     size = len(payload_str)
 
+    # Convert the size to a string
+    size_str = str(size)
+
     # Get resource usage of the MQTT process
     process = psutil.Process(process_id)
     cpu_percent = process.cpu_percent()
     memory_percent = process.memory_percent()
-
-    # Convert the size to a string
-    size_str = str(size)
 
     # Connect to the SQLite database
     global cursor
@@ -39,6 +38,7 @@ def on_message(client, userdata, msg):
     create_table(cursor)
 
     insert_data(size_str, payload_str, cpu_percent, memory_percent)  # Insert data into the database
+
     # Commit and close the database connection
     conn.commit()
     conn.close()
@@ -74,5 +74,4 @@ def insert_data(size, payload_str, cpu_percent, memory_percent):
                    (size, payload_str, cpu_percent, memory_percent))
 
 if __name__ == '__main__':
-
     run_mqtt_client()
