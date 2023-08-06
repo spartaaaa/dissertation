@@ -31,6 +31,8 @@ def on_message(client, userdata, msg):
     cpu_percent = process.cpu_percent()
     memory_percent = process.memory_percent()
 
+    print(cpu_percent, memory_percent)
+
     # Connect to the SQLite database
     global cursor
     with sqlite3.connect('data.db') as conn:
