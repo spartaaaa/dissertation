@@ -22,7 +22,7 @@ def on_message(client, userdata, msg):
 
     # Connect to the SQLite database
     global cursor
-    conn = sqlite3.connect('data.db')as conn:
+    conn = sqlite3.connect('data.db') as conn:
         cursor = conn.cursor()
 
     # Create the table if it doesn't exist
