@@ -17,7 +17,8 @@ def on_message(client, userdata, msg):
     # Get the size of the received message
     size = len(payload_str)
 
-    # Connect to the SQLite database    
+    # Connect to the SQLite database
+    global cursor
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
 
