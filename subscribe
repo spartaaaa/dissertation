@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import sqlite3
 import psutil  # Import the psutil library
 import sys
+import os
 
 broker = '192.168.1.7'
 port = 1883
@@ -9,7 +10,7 @@ username = 'qwerty'
 password = '12qwerty21'
 
 # Get the current process ID
-process_id = psutil.Process().pid
+process_id = os.getpid()
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
