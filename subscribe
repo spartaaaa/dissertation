@@ -11,9 +11,11 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("testTopic")
 
 def on_message(client, userdata, msg):
-    print(msg.payload.decode())  # Decode the payload and print as a string
-        
-    size = len(msg) # Get the size of the received message
+    payload_str = msg.payload.decode()  # Convert the payload from bytes to string
+    print(payload_str)  # Print the payload as a string
+
+    # Get the size of the received message
+    size = len(payload_str)
 
     # Connect to the SQLite database    
     conn = sqlite3.connect('data.db')
