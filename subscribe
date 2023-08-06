@@ -41,7 +41,7 @@ def create_table(cursor):
                     )''')
 
 def insert_data(cursor, size, msg):
-    cursor.execute("INSERT INTO r_authentication (size, msg) VALUES (?, ?)", (str(size), str(msg)))
+    cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (str(size), str(msg)))
 
     try:
         client.loop_forever()
