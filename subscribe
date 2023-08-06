@@ -52,7 +52,7 @@ def create_table(cursor):
                     )''')
 
 def insert_data(cursor, size, msg):
-    cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (str(size), str(msg)))
+    cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size), msg))
 
 if __name__ == '__main__':
     # Connect to the SQLite database
