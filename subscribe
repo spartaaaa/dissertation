@@ -12,26 +12,30 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     print(msg.payload.decode())  # Decode the payload and print as a string
-
-def run_mqtt_client():
-    client = mqtt.Client()
-    client.username_pw_set(username, password)
+        
+    size = len(msg) # Get the size of the received message
 
     # Connect to the SQLite database    
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
 
-    # Create the table if it doesn't exist
-    create_table(cursor)
+    insert_data(cursor, size, msg)  # Insert data into the database
 
     # Commit and close the database connection
     conn.commit()
     conn.close()
 
+def run_mqtt_client():
+    client = mqtt.Client()
+    client.username_pw_set(username, password)
+
     client.on_connect = on_connect
     client.on_message = on_message
 
     client.connect(broker, port, 60)
+
+    # Start the MQTT loop (this will keep the client running and processing messages)
+    client.loop_forever()
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
@@ -43,13 +47,15 @@ def create_table(cursor):
 def insert_data(cursor, size, msg):
     cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (str(size), str(msg)))
 
-    try:
-        client.loop_forever()
-        size = len(msg)
-        insert_data(cursor, size, msg)  # Insert data into the database
-    except KeyboardInterrupt:
-        print("Subscription stopped by user")
-        client.loop_stop()
-
 if __name__ == '__main__':
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+
+    # Create the table if it doesn't exist
+    create_table(cursor)
+
+    # Commit and close the database connection
+    conn.commit()
+    conn.close()
+
     run_mqtt_client()
