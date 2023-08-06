@@ -42,7 +42,7 @@ def run_mqtt_client():
     except KeyboardInterrupt:
         print("Exiting...")
         client.disconnect()
-        sys.exit(0
+        sys.exit(0)
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
