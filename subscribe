@@ -37,7 +37,12 @@ def run_mqtt_client():
     client.connect(broker, port, 60)
 
     # Start the MQTT loop (this will keep the client running and processing messages)
-    client.loop_forever()
+    try:
+        client.loop_forever()
+    except KeyboardInterrupt:
+        print("Exiting...")
+        client.disconnect()
+        sys.exit(0
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
