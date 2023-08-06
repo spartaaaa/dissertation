@@ -28,7 +28,7 @@ def on_message(client, userdata, msg):
     # Create the table if it doesn't exist
     create_table(cursor)
 
-    insert_data(size, msg)  # Insert data into the database
+    insert_data(size_str, msg)  # Insert data into the database
 
     # Commit and close the database connection
     conn.commit()
