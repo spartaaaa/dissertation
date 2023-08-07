@@ -11,6 +11,7 @@ password = '12qwerty21'
 
 # Get the current process ID
 process_id = os.getpid()
+print("Process ID:", process_id)
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
