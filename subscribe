@@ -1,6 +1,7 @@
 import paho.mqtt.client as mqtt
 import sqlite3
 import sys
+import threading  # Import the threading module
 
 broker = '192.168.1.19'
 port = 1883
@@ -59,8 +60,11 @@ def create_table(cursor):
                         msg TXT
                     )''')
 
-def insert_data(size, payload_str):
-        cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, payload_str))
+db_lock = threading.Lock()
+
+def insert_data(cursor, size, msg):
+    with db_lock:
+        cursor.execute("INSERT INTO authentication (size, msg) VALUES (?, ?)", (size, msg))
 
 if __name__ == '__main__':
 
