@@ -59,8 +59,8 @@ def create_table(cursor):
                         msg TXT
                     )''')
 
-def insert_data(size, payload_str):
-        cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, payload_str))
+def insert_data(size, msgg):
+        cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, msgg))
 
 if __name__ == '__main__':
 
