@@ -1,15 +1,37 @@
 from paho.mqtt import client as mqtt
 import sqlite3
 import sys
+import psutil
+import subprocess
 
 broker = '192.168.1.19'
 port = 1883
 username = 'qwerty'
 password = '12qwerty21'
 
+def get_wifi_signal_strength(interface):
+    try:
+        output = subprocess.check_output(["iwconfig", interface])
+        output = output.decode("utf-8")
+        signal_line = [line for line in output.split('\n') if "Signal level" in line]
+        if signal_line:
+            signal_strength = signal_line[0].split("Signal level=")[1].split()[0]
+            return signal_strength
+        else:
+            return "Signal level not found"
+    except subprocess.CalledProcessError:
+        return "Error retrieving signal strength"
+
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
     client.subscribe("testTopic")
+    
+    process_id = os.getpid()
+    print("Process ID:", process_id)
+
+    interface = "wlan0"
+    signal_strength = get_wifi_signal_strength(interface)
+    print(f"WiFi Signal Strength of {interface}: {signal_strength} dBm")
 
 def on_message(client, userdata, msg):
     payload_str = msg.payload.decode()  # Convert the payload from bytes to string
