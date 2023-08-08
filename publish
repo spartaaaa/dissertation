@@ -59,7 +59,7 @@ def run():
     client.loop_start()
 
     # Connect to the SQLite database
-    conn = sqlite3.connect('data.db')
+    conn = sqlite3.connect('pdata.db')
     cursor = conn.cursor()
 
     # Create the table if it doesn't exist
