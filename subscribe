@@ -65,8 +65,10 @@ db_lock = threading.Lock()
 
 def insert_data(size, payload_str):
     with db_lock:
-        cursor.execute("INSERT INTO authentication (size, msg) VALUES (?, ?)", (size, payload_str))
-
+        with sqlite3.connect('data.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, payload_str))
+            conn.commit()
 if __name__ == '__main__':
 
     run_mqtt_client()
