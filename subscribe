@@ -59,21 +59,13 @@ def create_table(cursor):
                         msg TXT
                     )''')
 
-<<<<<<< HEAD
-
-db_lock = threading.Lock()
 
 def insert_data(size, payload_str):
-    with db_lock:
-        with sqlite3.connect('data.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, payload_str))
-            conn.commit()
-=======
+    cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, payload_str))
+
 def insert_data(size, payload_str):
         cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, payload_str))
 
->>>>>>> parent of f93587f (Update thread lock)
 if __name__ == '__main__':
 
     run_mqtt_client()
