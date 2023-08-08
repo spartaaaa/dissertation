@@ -24,9 +24,6 @@ def get_wifi_signal_strength(interface):
         return "Error retrieving signal strength"
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
-    client.subscribe("testTopic")
-    
     process_id = os.getpid()
     print("Process ID:", process_id)
 
@@ -34,6 +31,9 @@ def on_connect(client, userdata, flags, rc):
     signal_strength = get_wifi_signal_strength(interface)
     print(f"WiFi Signal Strength of {interface}: {signal_strength} dBm")
 
+    print("Connected with result code " + str(rc))
+    client.subscribe("testTopic")
+    
 def on_message(client, userdata, msg):
     payload_str = msg.payload.decode()  # Convert the payload from bytes to string
     print(payload_str)  # Print the payload as a string
