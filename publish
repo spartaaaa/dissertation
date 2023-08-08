@@ -50,7 +50,7 @@ def publish(client, cursor):
             else:
                 print(f"Failed to send message to topic {topic}")
             insert_data(cursor, size, msg)  # Insert data into the database
-            msg_count *= 10
+            msg_count *= 10000
     except KeyboardInterrupt:
         print("Publishing stopped by user")
 
