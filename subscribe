@@ -1,4 +1,4 @@
-from paho.mqtt import client as mqtt_client
+from paho.mqtt import client as mqtt
 import sqlite3
 import sys
 import threading  # Import the threading module
