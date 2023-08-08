@@ -4,7 +4,7 @@ import psutil  # Import the psutil library
 import sys
 import os
 
-broker = '192.168.1.7'
+broker = '192.168.1.19'
 port = 1883
 username = 'qwerty'
 password = '12qwerty21'
@@ -36,7 +36,7 @@ def on_message(client, userdata, msg):
 
     # Connect to the SQLite database
     global cursor
-    with sqlite3.connect('data.db') as conn:
+    with sqlite3.connect('sdata.db') as conn:
         cursor = conn.cursor()
 
     # Create the table if it doesn't exist
