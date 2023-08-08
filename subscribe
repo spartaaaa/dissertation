@@ -1,12 +1,6 @@
 from paho.mqtt import client as mqtt
 import sqlite3
 import sys
-<<<<<<< HEAD
-import psutil
-import subprocess
-import os
-=======
->>>>>>> parent of bcad20f (integrated wifi signal stregth)
 
 broker = '192.168.1.19'
 port = 1883
@@ -14,17 +8,9 @@ username = 'qwerty'
 password = '12qwerty21'
 
 def on_connect(client, userdata, flags, rc):
-<<<<<<< HEAD
+
     process_id = os.getpid()
     print("Process ID:", process_id)
-
-    interface = "wlan0"
-    signal_strength = get_wifi_signal_strength(interface)
-    print(f"WiFi Signal Strength of {interface}: {signal_strength} dBm")
-=======
-    print("Connected with result code " + str(rc))
-    client.subscribe("testTopic")
->>>>>>> parent of bcad20f (integrated wifi signal stregth)
 
     print("Connected with result code " + str(rc))
     client.subscribe("testTopic")
