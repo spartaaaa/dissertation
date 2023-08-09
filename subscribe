@@ -78,7 +78,7 @@ def run_mqtt_client():
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
                         time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        size INTEGER,
+                        size INTEGER
                     )''')
 
 def insert_data(size):
