@@ -82,7 +82,7 @@ def create_table(cursor):
                     )''')
 
 def insert_data(size):
-    cursor.execute("INSERT INTO rece (size) VALUES (?)", (size))
+    cursor.execute("INSERT INTO rece (size) VALUES (?)", (size,))
 
 if __name__ == '__main__':
     run_mqtt_client()
