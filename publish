@@ -33,8 +33,8 @@ def create_table(cursor):
                         size INTEGER
                     )''')
 
-def insert_data(cursor, size, msg):
-    cursor.execute("INSERT INTO authentication (size, msg) VALUES (?, ?)", (str(size), str(msg)))
+def insert_data(cursor, size):
+    cursor.execute("INSERT INTO authentication (size) VALUES (?)", (str(size)))
 
 def publish(client, cursor):
     msg_count = 1
