@@ -36,7 +36,6 @@ def on_connect(client, userdata, flags, rc):
     
 def on_message(client, userdata, msg):
     payload_str = msg.payload.decode()  # Convert the payload from bytes to string
-    print(payload_str)  # Print the payload as a string
 
     # Get the size of the received message
     size = len(payload_str)
@@ -52,7 +51,7 @@ def on_message(client, userdata, msg):
     # Create the table if it doesn't exist
     create_table(cursor)
 
-    insert_data(size_str, payload_str)  # Insert data into the database
+    insert_data(size_str)  # Insert data into the database
 
     # Commit and close the database connection
     conn.commit()
@@ -79,11 +78,10 @@ def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS rece (
                         time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         size INTEGER,
-                        msg TXT
                     )''')
 
-def insert_data(size, payload_str):
-    cursor.execute("INSERT INTO rece (size, msg) VALUES (?, ?)", (size, payload_str))
+def insert_data(size):
+    cursor.execute("INSERT INTO rece (size) VALUES (?)", (size))
 
 if __name__ == '__main__':
     run_mqtt_client()
