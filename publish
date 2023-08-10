@@ -5,11 +5,9 @@ import sys
 
 from paho.mqtt import client as mqtt_client
 
-
 broker = '192.168.1.19'
 port = 1883
 topic = "testTopic"
-# generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 1000)}'
 username = 'qwerty'
 password = '12qwerty21'
@@ -37,8 +35,13 @@ def insert_data(cursor, size):
     cursor.execute("INSERT INTO authentication (size) VALUES (?)", (str(size),))
 
 def publish(client, cursor):
-    msg_count = 1
     try:
+        conn = sqlite3.connect('pdata.db')
+        cursor = conn.cursor()
+
+        create_table(cursor)
+
+        msg_count = 1
         while True:
             time.sleep(1)
             msg = f"{msg_count}"
@@ -49,29 +52,18 @@ def publish(client, cursor):
                 print(f"Send `{size}` to topic `{topic}`")
             else:
                 print(f"Failed to send message to topic {topic}")
-            insert_data(cursor, size)  # Insert data into the database
+            insert_data(cursor, size)
             msg_count *= 100000
     except KeyboardInterrupt:
         print("Publishing stopped by user")
+    finally:
+        conn.commit()
+        conn.close()
 
 def run():
     client = connect_mqtt()
     client.loop_start()
-
-    # Connect to the SQLite database
-    conn = sqlite3.connect('pdata.db')
-    cursor = conn.cursor()
-
-    # Create the table if it doesn't exist
-    create_table(cursor)
-
-    # Publish messages and store data in the database
-    publish(client, cursor)
-
-    # Commit and close the database connection
-    conn.commit()
-    conn.close()
+    publish(client)
 
 if __name__ == '__main__':
     run()
-
