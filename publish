@@ -21,7 +21,7 @@ def connect_mqtt():
 
     client = mqtt_client.Client(client_id)
     client.username_pw_set(username, password)
-    client.tls_set(ca_certs="/home/qwerty/certificates/ca.crt", certfile="/home/qwerty/certificates", keyfile="/home/qwerty/certificates")
+    client.tls_set("/home/qwerty/certificates/ca.crt")
     client.on_connect = on_connect
     client.connect(broker, port, 60)
     return client
