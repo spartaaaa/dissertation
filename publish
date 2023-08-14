@@ -35,7 +35,7 @@ def create_table(cursor):
 def insert_data(cursor, size):
     cursor.execute("INSERT INTO authentication (size) VALUES (?)", (str(size),))
 
-def publish(client, cursor):
+def publish(client):
     try:
         conn = sqlite3.connect('pdata.db')
         cursor = conn.cursor()
