@@ -4,10 +4,10 @@ import sys
 import os
 import subprocess
 
-broker = '192.168.1.19'
-port = 1883
-username = 'qwerty'
-password = '12qwerty21'
+broker = 'broker.local'
+port = 8883
+#username = 'qwerty'
+#password = '12qwerty21'
 
 def get_wifi_signal_strength(interface):
     try:
@@ -60,8 +60,8 @@ def on_message(client, userdata, msg):
 
 def run_mqtt_client():
     client = mqtt.Client()
-    client.username_pw_set(username, password)
-
+#    client.username_pw_set(username, password)
+    client.tls_set(ca_certs="/home/qwerty/certificates/ca-root-cert.crt")
     client.on_connect = on_connect
     client.on_message = on_message
 
