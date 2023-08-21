@@ -9,8 +9,8 @@ def create_table(cursor):
                         size INTEGER
                     )''')
 
-def insert_data(cursor, size):
-    cursor.execute("INSERT INTO received_data (size) VALUES (?)", (size,))
+def insert_data(cursor, size, timestamp):
+    cursor.execute("INSERT INTO received_data (time, size) VALUES (?, ?)", (timestamp, size))
 
 def main():
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
@@ -21,13 +21,14 @@ def main():
 
     def callback(ch, method, properties, body):
         size = len(body)
-        print(f" [x] Received {size} from queue '{queue}'")
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]  # Get time with milliseconds
+        print(f" [x] Received {body}, Size: {size}, Time: {timestamp}")
         
         conn = sqlite3.connect('received_data.db')
         cursor = conn.cursor()
 
         create_table(cursor)
-        insert_data(cursor, size)
+        insert_data(cursor, size, timestamp)
 
         conn.commit()
         conn.close()
