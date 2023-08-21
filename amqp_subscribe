@@ -21,7 +21,7 @@ def main():
 
     def callback(ch, method, properties, body):
         size = len(body)
-        print(f" [x] Received {size} from queue '{queue}'")
+        print(f" [x] Received {size} from hello")
         
         conn = sqlite3.connect('received_data.db')
         cursor = conn.cursor()
