@@ -1,0 +1,48 @@
+import random
+import time
+import sqlite3
+import pika
+
+def create_table(cursor):
+    cursor.execute('''CREATE TABLE IF NOT EXISTS amqp_data (
+                        time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        size INTEGER
+                    )''')
+
+def insert_data(cursor, size):
+    cursor.execute("INSERT INTO amqp_data (size) VALUES (?)", (size,))
+
+def publish(channel):
+    try:
+        conn = sqlite3.connect('amqp_data.db')
+        cursor = conn.cursor()
+
+        create_table(cursor)
+
+        msg_count = 1
+        while True:
+            time.sleep(1)
+            msg = f"{msg_count}"
+            size = len(msg)
+
+            channel.basic_publish(exchange='', routing_key='hello', body=msg)
+
+            print(f"Sending {size} to queue `hello`")
+            insert_data(cursor, size)
+            msg_count *= 10000000
+    except KeyboardInterrupt:
+        print("Publishing stopped by user")
+    finally:
+        conn.commit()
+        conn.close()
+
+def run():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='hello')
+
+    publish(channel)
+    connection.close()
+
+if __name__ == '__main__':
+    run()
