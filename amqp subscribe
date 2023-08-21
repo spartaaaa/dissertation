@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+import pika, sys, os
+import sqlite3
+import time
+
+def create_table(cursor):
+    cursor.execute('''CREATE TABLE IF NOT EXISTS received_data (
+                        time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        size INTEGER
+                    )''')
+
+def insert_data(cursor, size):
+    cursor.execute("INSERT INTO received_data (size) VALUES (?)", (size,))
+
+def main():
+    credentials = pika.PlainCredentials('qwerty', 'qwerty')
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='hello')
+
+    def callback(ch, method, properties, body):
+        size = len(body)
+        print(f" [x] Received {body}, Size: {size}")
+        
+        conn = sqlite3.connect('received_data.db')
+        cursor = conn.cursor()
+
+        create_table(cursor)
+        insert_data(cursor, size)
+
+        conn.commit()
+        conn.close()
+
+    channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
+
+    print(' [*] Waiting for messages. To exit press CTRL+C')
+    channel.start_consuming()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
