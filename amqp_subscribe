@@ -19,7 +19,7 @@ def get_wifi_signal_strength(interface):
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS received_data (
-                        time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER
                     )''')
 
