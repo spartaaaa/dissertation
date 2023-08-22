@@ -13,8 +13,10 @@ def insert_data(cursor, size):
     cursor.execute("INSERT INTO send_data (size) VALUES (?)", (size,))
 
 def publish(channel):
+    process_id = os.getpid()
+    print("Process ID:", process_id)
     try:
-        conn = sqlite3.connect('amqp.db')
+        conn = sqlite3.connect('amqpp.db')
         cursor = conn.cursor()
 
         create_table(cursor)
