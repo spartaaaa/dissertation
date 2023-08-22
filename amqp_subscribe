@@ -1,7 +1,21 @@
 #!/usr/bin/env python
 import pika, sys, os
 import sqlite3
-import time
+import os
+import subprocess
+
+def get_wifi_signal_strength(interface):
+    try:
+        output = subprocess.check_output(["iwconfig", interface])
+        output = output.decode("utf-8")
+        signal_line = [line for line in output.split('\n') if "Signal level" in line]
+        if signal_line:
+            signal_strength = signal_line[0].split("Signal level=")[1].split()[0]
+            return signal_strength
+        else:
+            return "Signal level not found"
+    except subprocess.CalledProcessError:
+        return "Error retrieving signal strength"
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS received_data (
@@ -13,6 +27,8 @@ def insert_data(cursor, size):
     cursor.execute("INSERT INTO received_data (size) VALUES (?)", (size,))
 
 def main():
+    process_id = os.getpid()
+    print("Process ID:", process_id)
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials))
     channel = connection.channel()
