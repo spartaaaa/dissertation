@@ -4,17 +4,17 @@ import sqlite3
 import pika
 
 def create_table(cursor):
-    cursor.execute('''CREATE TABLE IF NOT EXISTS amqp_data (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER
                     )''')
 
 def insert_data(cursor, size):
-    cursor.execute("INSERT INTO amqp_data (size) VALUES (?)", (size,))
+    cursor.execute("INSERT INTO send_data (size) VALUES (?)", (size,))
 
 def publish(channel):
     try:
-        conn = sqlite3.connect('amqp_data.db')
+        conn = sqlite3.connect('amqp.db')
         cursor = conn.cursor()
 
         create_table(cursor)

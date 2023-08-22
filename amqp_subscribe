@@ -39,7 +39,7 @@ def main():
         size = len(body)
         print(f" [x] Received {size} from hello")
         
-        conn = sqlite3.connect('received_data.db')
+        conn = sqlite3.connect('amqp.db')
         cursor = conn.cursor()
 
         create_table(cursor)
