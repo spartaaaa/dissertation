@@ -18,7 +18,7 @@ def publish(channel):
     process_id = os.getpid()
     print("Process ID:", process_id)
 
-    cpu_usage_command = "ps -p 562 -o %cpu --no-headers"
+    cpu_usage_command = f"ps -p {process_id} -o %cpu --no-headers"
     cpu_usage_output = subprocess.check_output(cpu_usage_command, shell=True)
     cpu_usage_value = float(cpu_usage_output.strip())
 
