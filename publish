@@ -28,7 +28,7 @@ def connect_mqtt():
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS authentication (
-                        time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW'),
                         size INTEGER
                     )''')
 
