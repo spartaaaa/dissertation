@@ -22,7 +22,9 @@ def create_table():
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS received_data (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
-                        size INTEGER
+                        size INTEGER,
+                        cpu_usage FLOAT,
+                        ram_usage FLOAT
                     )''')
     conn.commit()
     conn.close()
