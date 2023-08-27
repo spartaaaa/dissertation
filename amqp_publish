@@ -82,7 +82,7 @@ def publish(channel):
 def run():
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl=True))
     channel = connection.channel()
     channel.queue_declare(queue='hello')
 
