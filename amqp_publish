@@ -17,7 +17,7 @@ def get_wifi_signal_strength(interface):
     except subprocess.CalledProcessError:
         return "Error retrieving signal strength"
 
-def create_table(cursor):
+def create_table():
     conn = sqlite3.connect('amqpp.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
