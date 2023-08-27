@@ -4,6 +4,19 @@ import pika
 import os
 import subprocess
 
+def get_wifi_signal_strength(interface):
+    try:
+        output = subprocess.check_output(["iwconfig", interface])
+        output = output.decode("utf-8")
+        signal_line = [line for line in output.split('\n') if "Signal level" in line]
+        if signal_line:
+            signal_strength = signal_line[0].split("Signal level=")[1].split()[0]
+            return signal_strength
+        else:
+            return "Signal level not found"
+    except subprocess.CalledProcessError:
+        return "Error retrieving signal strength"
+
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
@@ -11,6 +24,7 @@ def create_table(cursor):
                         cpu_usage FLOAT,
                         ram_usage FLOAT
                     )''')
+    
 def get_resource_usage(process_id):
     try:
         # Run the 'ps' command to get the CPU usage for the specified process ID
@@ -33,6 +47,13 @@ def publish(channel):
 
     process_id = os.getpid()
     print("Process ID:", process_id)
+
+    # Get WiFi signal strength
+    wifi_signal_strength = get_wifi_signal_strength("wlan0")
+    print("WiFi Signal Strength:", wifi_signal_strength, "dBm")
+
+    input("Press Enter to continue...")
+
 
     try:
         conn = sqlite3.connect('amqpp.db')
