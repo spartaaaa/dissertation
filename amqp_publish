@@ -1,10 +1,19 @@
-import random
 import time
 import sqlite3
 import pika
 import os
+import psutil
+
+def get_cpu_usage(process_id):
+    try:
+        process = psutil.Process(process_id)
+        cpu_usage = process.cpu_percent(interval=1.0)
+        return cpu_usage
+    except psutil.NoSuchProcess:
+        return None
 
 def create_table(cursor):
+    cpu_usage = get_cpu_usage(process_id)
     cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER
