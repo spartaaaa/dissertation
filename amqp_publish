@@ -24,9 +24,6 @@ def insert_data(cursor, size):
     cursor.execute("INSERT INTO send_data (size, cpu_usage) VALUES (?, ?)", (size, cpu_usage))
 
 def publish(channel):
-    process_id = os.getpid()
-    print("Process ID:", process_id)
-
     try:
         conn = sqlite3.connect('amqpp.db')
         cursor = conn.cursor()
@@ -51,6 +48,8 @@ def publish(channel):
         conn.close()
 
 def run():
+    process_id = os.getpid()
+    print("Process ID:", process_id)
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
 
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials))
