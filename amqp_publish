@@ -13,14 +13,15 @@ def get_cpu_usage(process_id):
         return None
 
 def create_table(cursor):
-    cpu_usage = get_cpu_usage(process_id)
     cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
-                        size INTEGER
+                        size INTEGER,
+                        cpu_usage FLOAT
                     )''')
 
 def insert_data(cursor, size):
-    cursor.execute("INSERT INTO send_data (size) VALUES (?)", (size,))
+    cpu_usage = get_cpu_usage(process_id)
+    cursor.execute("INSERT INTO send_data (size, cpu_usage) VALUES (?, ?)", (size, cpu_usage))
 
 def publish(channel):
     process_id = os.getpid()
