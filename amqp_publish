@@ -29,7 +29,6 @@ def insert_data(cursor, size, process_id):
     cpu_usage, ram_usage = get_resource_usage(process_id)
     cursor.execute("INSERT INTO send_data (size, cpu_usage, ram_usage) VALUES (?, ?, ?)", (size, cpu_usage, ram_usage))
 
-
 def publish(channel):
 
     process_id = os.getpid()
