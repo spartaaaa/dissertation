@@ -4,14 +4,6 @@ import pika
 import os
 import psutil
 
-def get_cpu_usage(process_id):
-    try:
-        process = psutil.Process(process_id)
-        cpu_usage = process.cpu_percent(interval=1.0)
-        return cpu_usage
-    except psutil.NoSuchProcess:
-        return None
-
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
@@ -20,7 +12,7 @@ def create_table(cursor):
                     )''')
 
 def insert_data(cursor, size, process_id):
-    cpu_usage = get_cpu_usage(process_id)
+    cpu_usage = psutil.Process(process_id).cpu_percent(interval=None)
     cursor.execute("INSERT INTO send_data (size, cpu_usage) VALUES (?, ?)", (size, cpu_usage))
 
 def publish(channel):
