@@ -3,7 +3,6 @@ import time
 import sqlite3
 import pika
 import os
-import subprocess
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
@@ -17,10 +16,6 @@ def insert_data(cursor, size):
 def publish(channel):
     process_id = os.getpid()
     print("Process ID:", process_id)
-
-    cpu_usage_command = f"ps -p {process_id} -o %cpu --no-headers"
-    cpu_usage_output = subprocess.check_output(cpu_usage_command, shell=True)
-    cpu_usage_value = float(cpu_usage_output.strip())
 
     try:
         conn = sqlite3.connect('amqpp.db')
