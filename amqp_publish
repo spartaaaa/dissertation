@@ -6,7 +6,7 @@ import subprocess
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
-                        time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'LOCALTIME')),
+                        time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER,
                         cpu_usage FLOAT,
                         ram_usage FLOAT
