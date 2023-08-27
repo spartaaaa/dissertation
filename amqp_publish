@@ -58,12 +58,9 @@ def publish(channel):
 
     create_table()    
 
-
     try:
         conn = sqlite3.connect('amqpp.db')
         cursor = conn.cursor()
-
-        
 
         msg_count = 1
         while True:
