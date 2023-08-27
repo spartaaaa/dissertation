@@ -56,7 +56,7 @@ def publish(channel):
     wifi_signal_strength = get_wifi_signal_strength("wlan0")
     print("WiFi Signal Strength:", wifi_signal_strength, "dBm")
 
-    create_table(cursor)    
+    create_table()    
 
 
     try:
