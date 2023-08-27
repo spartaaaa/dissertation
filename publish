@@ -5,6 +5,13 @@ import os
 from paho.mqtt import client as mqtt_client
 import subprocess
 
+broker = 'broker.local'
+port = 8883
+topic = "testTopic"
+client_id = f'python-mqtt-{random.randint(0, 1000)}'
+#username = 'qwerty'
+#password = '12qwerty21'
+
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS authentication (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW'),
@@ -27,13 +34,6 @@ def insert_data(cursor, size, process_id):
     cpu_usage = get_cpu_usage(process_id)
     cursor.execute("INSERT INTO send_data (size, cpu_usage) VALUES (?, ?)", (size, cpu_usage))
 
-
-broker = 'broker.local'
-port = 8883
-topic = "testTopic"
-client_id = f'python-mqtt-{random.randint(0, 1000)}'
-#username = 'qwerty'
-#password = '12qwerty21'
 
 def connect_mqtt():
     def on_connect(client, userdata, flags, rc):
