@@ -17,12 +17,16 @@ def get_wifi_signal_strength(interface):
     except subprocess.CalledProcessError:
         return "Error retrieving signal strength"
 
-def create_table(cursor):
+def create_table():
+    conn = sqlite3.connect('amqps.db')
+    cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS received_data (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER
                     )''')
-    
+    conn.commit()
+    conn.close()
+
 def get_resource_usage(process_id):
     try:
         # Run the 'ps' command to get the CPU usage for the specified process ID
@@ -45,6 +49,8 @@ def main():
     process_id = os.getpid()
     print("Process ID:", process_id)
 
+    create_table()
+
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials))
     channel = connection.channel()
@@ -58,8 +64,7 @@ def main():
         conn = sqlite3.connect('amqps.db')
         cursor = conn.cursor()
 
-        create_table(cursor)
-        insert_data(cursor, size)
+        insert_data(cursor, size, process_id)
 
         conn.commit()
         conn.close()
