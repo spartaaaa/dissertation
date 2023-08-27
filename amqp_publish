@@ -18,12 +18,16 @@ def get_wifi_signal_strength(interface):
         return "Error retrieving signal strength"
 
 def create_table(cursor):
+    conn = sqlite3.connect('amqpp.db')
+    cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER,
                         cpu_usage FLOAT,
                         ram_usage FLOAT
                     )''')
+    conn.commit()
+    conn.close()
     
 def get_resource_usage(process_id):
     try:
@@ -52,14 +56,14 @@ def publish(channel):
     wifi_signal_strength = get_wifi_signal_strength("wlan0")
     print("WiFi Signal Strength:", wifi_signal_strength, "dBm")
 
-    input("Press Enter to continue...")
+    create_table(cursor)    
 
 
     try:
         conn = sqlite3.connect('amqpp.db')
         cursor = conn.cursor()
 
-        create_table(cursor)
+        
 
         msg_count = 1
         while True:
