@@ -2,8 +2,31 @@ import random
 import time
 import sqlite3
 import sys
-
 from paho.mqtt import client as mqtt_client
+import subprocess
+
+def create_table(cursor):
+    cursor.execute('''CREATE TABLE IF NOT EXISTS authentication (
+                        time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW'),
+                        size INTEGER
+                        cpu_usage FLOAT
+                    )''')
+def get_cpu_usage(process_id):
+    try:
+        # Run the 'ps' command to get the CPU usage for the specified process ID
+        command = f"ps -p {process_id} -o %cpu"
+        result = subprocess.check_output(command, shell=True, text=True)
+        
+        # Extract the CPU value from the result
+        cpu_value = result.strip().split('\n')[1]  # Assuming the second line contains the CPU value
+        return float(cpu_value)
+    except subprocess.CalledProcessError:
+        return None
+
+def insert_data(cursor, size, process_id):
+    cpu_usage = get_cpu_usage(process_id)
+    cursor.execute("INSERT INTO send_data (size, cpu_usage) VALUES (?, ?)", (size, cpu_usage))
+
 
 broker = 'broker.local'
 port = 8883
@@ -26,16 +49,9 @@ def connect_mqtt():
     client.connect(broker, port, 60)
     return client
 
-def create_table(cursor):
-    cursor.execute('''CREATE TABLE IF NOT EXISTS authentication (
-                        time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW'),
-                        size INTEGER
-                    )''')
-
-def insert_data(cursor, size):
-    cursor.execute("INSERT INTO authentication (size) VALUES (?)", (str(size),))
-
 def publish(client):
+    process_id = os.getpid()
+    print("Process ID:", process_id)
     try:
         conn = sqlite3.connect('pdata.db')
         cursor = conn.cursor()
@@ -53,7 +69,7 @@ def publish(client):
                 print(f"Sending {size} to topic `{topic}`")
             else:
                 print(f"Failed to send message to topic {topic}")
-            insert_data(cursor, size)
+            insert_data(cursor, size, process_id)
             msg_count *= 10000000
     except KeyboardInterrupt:
         print("Publishing stopped by user")
