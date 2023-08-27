@@ -2,7 +2,7 @@ import time
 import sqlite3
 import pika
 import os
-import psutil
+import subprocess
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
@@ -10,9 +10,20 @@ def create_table(cursor):
                         size INTEGER,
                         cpu_usage FLOAT
                     )''')
+def get_cpu_usage(process_id):
+    try:
+        # Run the 'ps' command to get the CPU usage for the specified process ID
+        command = f"ps -p {process_id} -o %cpu"
+        result = subprocess.check_output(command, shell=True, text=True)
+        
+        # Extract the CPU value from the result
+        cpu_value = result.strip().split('\n')[1]  # Assuming the second line contains the CPU value
+        return float(cpu_value)
+    except subprocess.CalledProcessError:
+        return None
 
 def insert_data(cursor, size, process_id):
-    cpu_usage = psutil.Process(process_id).cpu_percent(interval=None)
+    cpu_usage = get_cpu_usage(process_id)
     cursor.execute("INSERT INTO send_data (size, cpu_usage) VALUES (?, ?)", (size, cpu_usage))
 
 def publish(channel):
