@@ -14,7 +14,7 @@ client_id = f'python-mqtt-{random.randint(0, 1000)}'
 
 def create_table(cursor):
     cursor.execute('''CREATE TABLE IF NOT EXISTS authentication (
-                        time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW'),
+                        time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER,
                         cpu_usage FLOAT
                     )''')
