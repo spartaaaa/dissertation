@@ -83,7 +83,12 @@ def publish(channel):
 def run():
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl_options={"cert_reqs": ssl.CERT_REQUIRED, "ca_certs": /home/qwerty/certificates/ca_certificate.pem}))
+    context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca_certificate.pem')
+
+    ssl_options = pika.SSLOptions(context, server_hostname='broker.local')
+    parameters = pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl_options=ssl_options)
+
+    connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     channel.queue_declare(queue='hello')
 
