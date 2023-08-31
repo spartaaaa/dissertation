@@ -3,6 +3,7 @@ import sqlite3
 import pika
 import os
 import subprocess
+import ssl
 
 def get_wifi_signal_strength(interface):
     try:
@@ -82,7 +83,7 @@ def publish(channel):
 def run():
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl=True))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl_options={"cert_reqs": ssl.CERT_REQUIRED, "ca_certs": /home/qwerty/certificates/ca_certificate.pem}))
     channel = connection.channel()
     channel.queue_declare(queue='hello')
 
