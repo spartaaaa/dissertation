@@ -83,7 +83,7 @@ def publish(channel):
 def run():
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
 
-    context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca_certificate.pem')
+    context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca-root-cert.crt')
 
     ssl_options = pika.SSLOptions(context, server_hostname='broker.local')
     parameters = pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl_options=ssl_options)
