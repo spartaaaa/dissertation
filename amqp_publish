@@ -86,7 +86,7 @@ def run():
     context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca-root-cert.crt')
 
     ssl_options = pika.SSLOptions(context, server_hostname='broker.local')
-    parameters = pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl_options=ssl_options)
+    parameters = pika.ConnectionParameters(host='broker.local', port=5671, credentials=credentials, ssl_options=ssl_options)
 
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
