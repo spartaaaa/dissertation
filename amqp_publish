@@ -85,7 +85,7 @@ def publish(channel):
 def run():
     #credentials = pika.PlainCredentials('qwerty', 'qwerty')
 
-    context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca-root-cert.crt')
+    context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca_certificate.pem')
     context.verify_mode = ssl.CERT_REQUIRED
     context.load_cert_chain("/home/qwerty/certificates/client/client_certificate.pem", "/home/qwerty/certificates/client/private_key.pem")
 
