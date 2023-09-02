@@ -1,8 +1,10 @@
-import time
+#!/usr/bin/env python
+import pika, sys, os
 import sqlite3
-import pika
 import os
 import subprocess
+import ssl
+from pika.credentials import ExternalCredentials
 
 def get_wifi_signal_strength(interface):
     try:
@@ -18,9 +20,9 @@ def get_wifi_signal_strength(interface):
         return "Error retrieving signal strength"
 
 def create_table():
-    conn = sqlite3.connect('amqpp.db')
+    conn = sqlite3.connect('amqps.db')
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS send_data (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS received_data (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER,
                         cpu_usage FLOAT,
@@ -28,7 +30,7 @@ def create_table():
                     )''')
     conn.commit()
     conn.close()
-    
+
 def get_resource_usage(process_id):
     try:
         # Run the 'ps' command to get the CPU usage for the specified process ID
@@ -45,52 +47,51 @@ def get_resource_usage(process_id):
 
 def insert_data(cursor, size, process_id):
     cpu_usage, ram_usage = get_resource_usage(process_id)
-    cursor.execute("INSERT INTO send_data (size, cpu_usage, ram_usage) VALUES (?, ?, ?)", (size, cpu_usage, ram_usage))
+    cursor.execute("INSERT INTO received_data (size, cpu_usage, ram_usage) VALUES (?, ?, ?)", (size, cpu_usage, ram_usage))
 
-def publish(channel):
-
+def main():
     process_id = os.getpid()
     print("Process ID:", process_id)
 
-    # Get WiFi signal strength
-    wifi_signal_strength = get_wifi_signal_strength("wlan0")
-    print("WiFi Signal Strength:", wifi_signal_strength, "dBm")
+    create_table()
 
-    create_table()    
+    #credentials = pika.PlainCredentials('qwerty', 'qwerty')
+
+    context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca_certificate.pem')
+    context.load_cert_chain("/home/qwerty/certificates/client/client_certificate.pem", "/home/qwerty/certificates/client/private_key.pem")
+    ssl_options = pika.SSLOptions(context, "broker.local")
+    parameters = pika.ConnectionParameters(host="broker.local", port=5671, credentials=ExternalCredentials(), ssl_options=ssl_options, heartbeat=0)
+
+    connection = pika.BlockingConnection(parameters)
 
 
-    try:
-        conn = sqlite3.connect('amqpp.db')
+    channel = connection.channel()
+
+    channel.queue_declare(queue='hello')
+
+    def callback(ch, method, properties, body):
+        size = len(body)
+        print(f" [x] Received {size} from hello")
+        
+        conn = sqlite3.connect('amqps.db')
         cursor = conn.cursor()
 
-        
+        insert_data(cursor, size, process_id)
 
-        msg_count = 1
-        while True:
-            time.sleep(1)
-            msg = f"{msg_count}"
-            size = len(msg)
-
-            channel.basic_publish(exchange='', routing_key='hello', body=msg)
-
-            print(f"Sending {size} to queue `hello`")
-            insert_data(cursor, size, process_id)
-            msg_count *= 10000000
-    except KeyboardInterrupt:
-        print("Publishing stopped by user")
-    finally:
         conn.commit()
         conn.close()
 
-def run():
-    credentials = pika.PlainCredentials('qwerty', 'qwerty')
+    channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials))
-    channel = connection.channel()
-    channel.queue_declare(queue='hello')
-
-    publish(channel)
-    connection.close()
+    print(' [*] Waiting for messages. To exit press CTRL+C')
+    channel.start_consuming()
 
 if __name__ == '__main__':
-    run()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)

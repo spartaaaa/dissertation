@@ -3,8 +3,6 @@ import pika, sys, os
 import sqlite3
 import os
 import subprocess
-import ssl
-from pika.credentials import ExternalCredentials
 
 def get_wifi_signal_strength(interface):
     try:
@@ -19,21 +17,18 @@ def get_wifi_signal_strength(interface):
     except subprocess.CalledProcessError:
         return "Error retrieving signal strength"
 
-def create_table():
-    conn = sqlite3.connect('amqps.db')
-    cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS received_data (
+def create_table(cursor):
+    cursor.execute('''CREATE TABLE IF NOT EXISTS pdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER,
                         cpu_usage FLOAT,
-                        ram_usage FLOAT
+                        ram_usage FLOAT,
+                        wifi_signal_strength VARCHAR(10)
                     )''')
-    conn.commit()
-    conn.close()
-
+    
 def get_resource_usage(process_id):
     try:
-        # Run the 'ps' command to get the CPU usage for the specified process ID
+        # Run the 'ps' command to get the CPU and RAM usage for the specified process ID
         command = f"ps -p {process_id} -o %cpu,%mem"
         result = subprocess.check_output(command, shell=True, text=True)
         
@@ -47,24 +42,15 @@ def get_resource_usage(process_id):
 
 def insert_data(cursor, size, process_id):
     cpu_usage, ram_usage = get_resource_usage(process_id)
-    cursor.execute("INSERT INTO received_data (size, cpu_usage, ram_usage) VALUES (?, ?, ?)", (size, cpu_usage, ram_usage))
+    wifi_signal_strength = get_wifi_signal_strength("wlan0")
+    cursor.execute("INSERT INTO pdata (size, cpu_usage, ram_usage, wifi_signal_strength) VALUES (?, ?, ?, ?)", (size, cpu_usage, ram_usage, wifi_signal_strength))
 
 def main():
     process_id = os.getpid()
     print("Process ID:", process_id)
 
-    create_table()
-
-    #credentials = pika.PlainCredentials('qwerty', 'qwerty')
-
-    context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca_certificate.pem')
-    context.load_cert_chain("/home/qwerty/certificates/client/client_certificate.pem", "/home/qwerty/certificates/client/private_key.pem")
-    ssl_options = pika.SSLOptions(context, "broker.local")
-    parameters = pika.ConnectionParameters(host="broker.local", port=5671, credentials=ExternalCredentials(), ssl_options=ssl_options, heartbeat=0)
-
-    connection = pika.BlockingConnection(parameters)
-
-
+    credentials = pika.PlainCredentials('qwerty', 'qwerty')
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials))
     channel = connection.channel()
 
     channel.queue_declare(queue='hello')
@@ -73,9 +59,10 @@ def main():
         size = len(body)
         print(f" [x] Received {size} from hello")
         
-        conn = sqlite3.connect('amqps.db')
+        conn = sqlite3.connect('amqpp.db')
         cursor = conn.cursor()
 
+        create_table(cursor)
         insert_data(cursor, size, process_id)
 
         conn.commit()
