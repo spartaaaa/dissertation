@@ -3,6 +3,7 @@ import pika, sys, os
 import sqlite3
 import os
 import subprocess
+from pika.credentials import ExternalCredentials
 
 def get_wifi_signal_strength(interface):
     try:
@@ -54,7 +55,15 @@ def main():
     create_table()
 
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl=True, cafile='/home/qwerty/certificates/ca_certificate.pem'))
+
+    context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca_certificate.pem')
+    context.load_cert_chain("/home/qwerty/certificates/client/client_certificate.pem", "/home/qwerty/certificates/client/private_key.pem")
+    ssl_options = pika.SSLOptions(context, "broker.local")
+    parameters = pika.ConnectionParameters(host="broker.local", port=5671, credentials=ExternalCredentials(), ssl_options=ssl_options, heartbeat=0)
+
+    connection = pika.BlockingConnection(parameters)
+
+
     channel = connection.channel()
 
     channel.queue_declare(queue='hello')
