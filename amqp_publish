@@ -75,7 +75,7 @@ def publish(channel):
 
             print(f"Sending {size} to queue `hello`")
             insert_data(cursor, size, process_id)
-            msg_count *= 10000000
+            msg_count *= 100000000000
     except KeyboardInterrupt:
         print("Publishing stopped by user")
     finally:
