@@ -54,7 +54,7 @@ def main():
     create_table()
 
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl=True, cafile="/home/qwerty/certificates/ca-root-cert.crt"))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials, ssl=True, cafile='/home/qwerty/certificates/ca_certificate.pem'))
     channel = connection.channel()
 
     channel.queue_declare(queue='hello')
