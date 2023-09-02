@@ -74,13 +74,17 @@ def on_message(client, userdata, msg):
     conn = sqlite3.connect('sdata.db')
     cursor = conn.cursor()
 
-    insert_data(cursor, size_str)  # Insert data into the database
+    insert_data(cursor, size_str, process_id)  # Insert data into the database
 
     # Commit and close the database connection
     conn.commit()
     conn.close()
 
 def run_mqtt_client():
+    global process_id
+    process_id = os.getpid()
+    print("Process ID:", process_id)
+
     client = mqtt.Client()
     # client.username_pw_set(username, password)
     client.tls_set(ca_certs="/home/qwerty/certificates/ca-root-cert.crt")
