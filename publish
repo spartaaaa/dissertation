@@ -19,6 +19,7 @@ def create_table(cursor):
                         size INTEGER,
                         cpu_usage FLOAT
                     )''')
+    
 def get_cpu_usage(process_id):
     try:
         # Run the 'ps' command to get the CPU usage for the specified process ID
