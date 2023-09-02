@@ -22,8 +22,7 @@ def create_table(cursor):
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER,
                         cpu_usage FLOAT,
-                        ram_usage FLOAT,
-                        wifi_signal_strength VARCHAR(10)
+                        ram_usage FLOAT
                     )''')
     
 def get_resource_usage(process_id):
@@ -42,12 +41,15 @@ def get_resource_usage(process_id):
 
 def insert_data(cursor, size, process_id):
     cpu_usage, ram_usage = get_resource_usage(process_id)
-    wifi_signal_strength = get_wifi_signal_strength("wlan0")
-    cursor.execute("INSERT INTO pdata (size, cpu_usage, ram_usage, wifi_signal_strength) VALUES (?, ?, ?, ?)", (size, cpu_usage, ram_usage, wifi_signal_strength))
+    cursor.execute("INSERT INTO pdata (size, cpu_usage, ram_usage) VALUES (?, ?, ?, ?)", (size, cpu_usage, ram_usage))
 
 def main():
     process_id = os.getpid()
     print("Process ID:", process_id)
+
+    # Get WiFi signal strength
+    wifi_signal_strength = get_wifi_signal_strength("wlan0")
+    print("WiFi Signal Strength:", wifi_signal_strength, "dBm")
 
     credentials = pika.PlainCredentials('qwerty', 'qwerty')
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='broker.local', credentials=credentials))
