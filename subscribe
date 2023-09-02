@@ -7,20 +7,19 @@ import subprocess
 
 broker = 'broker.local'
 port = 8883
-#username = 'qwerty'
-#password = '12qwerty21'
+# username = 'qwerty'
+# password = '12qwerty21'
 
-def create_table():
-    # Connect to the SQLite database
-    global cursor
-    with sqlite3.connect('sdata.db') as conn:
-        cursor = conn.cursor()
+# Connect to the SQLite database and create the table if it doesn't exist
+with sqlite3.connect('sdata.db') as conn:
+    cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS sdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER
                     )''')
+    conn.commit()
 
-def insert_data(size):
+def insert_data(cursor, size):
     cursor.execute("INSERT INTO sdata (size) VALUES (?)", (size,))
 
 def get_wifi_signal_strength(interface):
@@ -37,7 +36,6 @@ def get_wifi_signal_strength(interface):
         return "Error retrieving signal strength"
 
 def on_connect(client, userdata, flags, rc):
-
     process_id = os.getpid()
     print("Process ID:", process_id)
 
@@ -47,7 +45,7 @@ def on_connect(client, userdata, flags, rc):
 
     print("Connected with result code " + str(rc))
     client.subscribe("testTopic")
-    
+
 def on_message(client, userdata, msg):
     payload_str = msg.payload.decode()  # Convert the payload from bytes to string
 
@@ -58,21 +56,19 @@ def on_message(client, userdata, msg):
     size_str = str(size)
     print(size_str)
 
+    # Connect to the SQLite database (the table should already exist)
+    conn = sqlite3.connect('sdata.db')
+    cursor = conn.cursor()
 
-
-    # Create the table if it doesn't exist
-    
-
-    insert_data(size_str)  # Insert data into the database
+    insert_data(cursor, size_str)  # Insert data into the database
 
     # Commit and close the database connection
     conn.commit()
     conn.close()
 
 def run_mqtt_client():
-    create_table()
     client = mqtt.Client()
-#    client.username_pw_set(username, password)
+    # client.username_pw_set(username, password)
     client.tls_set(ca_certs="/home/qwerty/certificates/ca-root-cert.crt")
     client.on_connect = on_connect
     client.on_message = on_message
