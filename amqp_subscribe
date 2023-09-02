@@ -3,6 +3,7 @@ import pika, sys, os
 import sqlite3
 import os
 import subprocess
+import ssl
 from pika.credentials import ExternalCredentials
 
 def get_wifi_signal_strength(interface):
