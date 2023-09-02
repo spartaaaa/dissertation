@@ -15,7 +15,8 @@ with sqlite3.connect('sdata.db') as conn:
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS sdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
-                        size INTEGER
+                        size INTEGER,
+                        cpu_usage FLOAT
                     )''')
     conn.commit()
 

@@ -14,11 +14,12 @@ client_id = f'python-mqtt-{random.randint(0, 1000)}'
 #password = '12qwerty21'
 
 # Connect to the SQLite database and create the table if it doesn't exist
-with sqlite3.connect('sdata.db') as conn:
+with sqlite3.connect('pdata.db') as conn:
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS sdata (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS pdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
-                        size INTEGER
+                        size INTEGER,
+                        cpu_usage FLOAT
                     )''')
     conn.commit()
 
