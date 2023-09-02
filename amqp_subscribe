@@ -55,7 +55,7 @@ def main():
 
     create_table()
 
-    credentials = pika.PlainCredentials('qwerty', 'qwerty')
+    #credentials = pika.PlainCredentials('qwerty', 'qwerty')
 
     context = ssl.create_default_context(cafile='/home/qwerty/certificates/ca_certificate.pem')
     context.load_cert_chain("/home/qwerty/certificates/client/client_certificate.pem", "/home/qwerty/certificates/client/private_key.pem")
