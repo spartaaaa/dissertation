@@ -18,7 +18,7 @@ def get_wifi_signal_strength(interface):
         return "Error retrieving signal strength"
 
 def create_table(cursor):
-    cursor.execute('''CREATE TABLE IF NOT EXISTS pdata (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS sdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER,
                         cpu_usage FLOAT,
@@ -61,7 +61,7 @@ def main():
         size = len(body)
         print(f" [x] Received {size} from hello")
         
-        conn = sqlite3.connect('amqpp.db')
+        conn = sqlite3.connect('sdata.db')
         cursor = conn.cursor()
 
         create_table(cursor)
