@@ -63,7 +63,7 @@ def publish(channel):
         cursor = conn.cursor()
      
         msg_count = 1
-        while msg_count<30:
+        while msg_count<=100:
             #time.sleep(1)
             msg = f"25.7775657768 "
             size = len(msg)
