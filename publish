@@ -81,7 +81,7 @@ def publish(client):
 
         msg_count = 1
         while True:
-            time.sleep(1)
+            #time.sleep(1)
             msg = f"{msg_count}"
             size = len(msg)
             result = client.publish(topic, msg)
