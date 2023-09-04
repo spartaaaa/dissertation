@@ -63,16 +63,16 @@ def publish(channel):
         cursor = conn.cursor()
      
         msg_count = 1
-        while True:
-            time.sleep(1)
-            msg = f"{msg_count}"
+        while msg_count<6:
+            #time.sleep(1)
+            msg = f"25.7775657768 "
             size = len(msg)
 
             channel.basic_publish(exchange='', routing_key='hello', body=msg)
 
             print(f"Sending {size} to queue `hello`")
             insert_data(cursor, size, process_id)
-            msg_count *= 100000000000
+            msg_count += 1
     except KeyboardInterrupt:
         print("Publishing stopped by user")
     finally:
