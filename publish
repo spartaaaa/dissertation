@@ -84,7 +84,7 @@ def publish(client):
             #time.sleep(1)
             msg = f"25.7775657768 "
             size = len(msg)
-            result = client.publish(topic, msg,  qos=2)
+            result = client.publish(topic, msg, qos=2, retain=True)
             status = result[0]
             if status == 0:
                 print(f"Sending {size} to topic `{topic}`")

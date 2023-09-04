@@ -52,7 +52,7 @@ def get_wifi_signal_strength(interface):
 def on_connect(client, userdata, flags, rc):
 
     print("Connected with result code " + str(rc))
-    client.subscribe("testTopic",  qos=2, retain=True)
+    client.subscribe("testTopic",  qos=2)
 
 def on_message(client, userdata, msg):
     payload_str = msg.payload.decode()  # Convert the payload from bytes to string
