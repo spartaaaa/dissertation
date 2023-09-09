@@ -61,18 +61,22 @@ def publish(channel):
     try:
         conn = sqlite3.connect('pdata.db')
         cursor = conn.cursor()
-     
-        msg_count = 1
-        while msg_count<=100:
-            #time.sleep(1)
-            msg = f"25.7775657768 "
-            size = len(msg)
+        x=0
+        while x<=5: 
+            msg_count = 1
+            while msg_count <= 5:
+                #time.sleep(1)
+                msg = f"25.7775657768-{msg_count}"
+                size = len(msg)
 
-            channel.basic_publish(exchange='', routing_key='hello', body=msg)
+                channel.basic_publish(exchange='', routing_key='hello', body=msg)
 
-            print(f"Sending {size} to queue `hello`")
-            insert_data(cursor, size, process_id)
-            msg_count += 1
+                print(f"Sending {size} to queue `hello`")
+                insert_data(cursor, size, process_id)
+                msg_count += 1
+            x += 1
+            time.sleep(10)  # Sleep for 10 seconds before the next iteration
+
     except KeyboardInterrupt:
         print("Publishing stopped by user")
     finally:
