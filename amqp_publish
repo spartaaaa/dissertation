@@ -57,6 +57,7 @@ def publish(channel):
     print("WiFi Signal Strength:", wifi_signal_strength, "dBm")
 
     create_table()    
+    time.sleep(10)
 
     try:
         conn = sqlite3.connect('pdata.db')
