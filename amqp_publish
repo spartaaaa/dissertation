@@ -22,7 +22,7 @@ def create_table():
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS pdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
-                        size INTEGER,
+                        msg INTEGER,
                         cpu_usage FLOAT,
                         ram_usage FLOAT
                     )''')
@@ -43,9 +43,9 @@ def get_resource_usage(process_id):
     except subprocess.CalledProcessError:
         return None, None
 
-def insert_data(cursor, size, process_id):
+def insert_data(cursor, msg, process_id):
     cpu_usage, ram_usage = get_resource_usage(process_id)
-    cursor.execute("INSERT INTO pdata (size, cpu_usage, ram_usage) VALUES (?, ?, ?)", (size, cpu_usage, ram_usage))
+    cursor.execute("INSERT INTO pdata (msg, cpu_usage, ram_usage) VALUES (?, ?, ?)", (msg, cpu_usage, ram_usage))
 
 def publish(channel):
 
@@ -66,13 +66,13 @@ def publish(channel):
             msg_count = 1
             while msg_count <= 5:
                 #time.sleep(1)
-                msg = f"25.7775657768-{msg_count}"
+                msg = f"29.7775657768-{x}"
                 size = len(msg)
 
                 channel.basic_publish(exchange='', routing_key='hello', body=msg)
 
                 print(f"Sending {size} to queue `hello`")
-                insert_data(cursor, size, process_id)
+                insert_data(cursor, msg, process_id)
                 msg_count += 1
             x += 1
             time.sleep(10)  # Sleep for 10 seconds before the next iteration
