@@ -59,7 +59,7 @@ def main():
 
     def callback(ch, method, properties, body):
         #size = len(body)
-        print(f" [x] Received {size} from hello")
+        print(f" [x] Received {body} from hello")
         
         conn = sqlite3.connect('sdata.db')
         cursor = conn.cursor()
