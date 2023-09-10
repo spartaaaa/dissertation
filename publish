@@ -14,7 +14,8 @@ client_id = f'python-mqtt-{random.randint(0, 1000)}'
 #password = '12qwerty21'
 
 # Connect to the SQLite database and create the table if it doesn't exist
-with sqlite3.connect('pdata.db') as conn:
+def create_table():
+    conn = sqlite3.connect('pdata.db')
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS pdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
@@ -23,6 +24,7 @@ with sqlite3.connect('pdata.db') as conn:
                         ram_usage FLOAT
                     )''')
     conn.commit()
+    conn.close()
 
 
 def get_cpu_usage(process_id):
@@ -77,6 +79,8 @@ def publish(client):
     # Get WiFi signal strength
     wifi_signal_strength = get_wifi_signal_strength("wlan0")
     print("WiFi Signal Strength:", wifi_signal_strength, "dBm")
+
+    create_table()
 
     try:
         conn = sqlite3.connect('pdata.db')
