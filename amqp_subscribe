@@ -60,13 +60,13 @@ def main():
     def callback(ch, method, properties, body):
         msg = body.decode('utf-8')
 
-        print(f" [x] Received {body} from hello")
+        print(f" [x] Received {msg} from hello")
         
         conn = sqlite3.connect('sdata.db')
         cursor = conn.cursor()
 
         create_table(cursor)
-        insert_data(cursor, body, process_id)
+        insert_data(cursor, msg, process_id)
 
         conn.commit()
         conn.close()
