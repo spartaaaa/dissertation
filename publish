@@ -78,20 +78,26 @@ def publish(client):
     try:
         conn = sqlite3.connect('pdata.db')
         cursor = conn.cursor()
+        
+        x=1
+        time.sleep(100)
+        while x<=5: 
+            msg_count = 1
+            while msg_count<5:
+                #time.sleep(1)
+                msg = f"25.7775657768-{x}"
+                
+                result = client.publish(topic, msg, qos=2)
+                status = result[0]
+                if status == 0:
+                   print(f"Sending {msg} to topic `{topic}`")
+                else:
+                    print(f"Failed to send message to topic {topic}")
+                insert_data(cursor, msg, process_id)
+                msg_count += 1
+            x += 1
+            time.sleep(10)  # Sleep for 10 seconds before the next iteration
 
-        msg_count = 1
-        while msg_count<100:
-            #time.sleep(1)
-            msg = f"25.7775657768 "
-            size = len(msg)
-            result = client.publish(topic, msg, qos=2)
-            status = result[0]
-            if status == 0:
-                print(f"Sending {size} to topic `{topic}`")
-            else:
-                print(f"Failed to send message to topic {topic}")
-            insert_data(cursor, size, process_id)
-            msg_count += 1
     except KeyboardInterrupt:
         print("Publishing stopped by user")
     finally:
