@@ -64,6 +64,7 @@ def on_message(client, userdata, msg):
     conn = sqlite3.connect('sdata.db')
     cursor = conn.cursor()
 
+    print(f" [x] Received {payload_str} from hello")
     insert_data(cursor, payload_str, process_id)  # Insert data into the database
 
     # Commit and close the database connection
