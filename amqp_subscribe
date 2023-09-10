@@ -58,7 +58,8 @@ def main():
     channel.queue_declare(queue='hello')
 
     def callback(ch, method, properties, body):
-        #size = len(body)
+        msg = body.decode('utf-8')
+
         print(f" [x] Received {body} from hello")
         
         conn = sqlite3.connect('sdata.db')
