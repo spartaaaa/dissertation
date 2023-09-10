@@ -19,7 +19,7 @@ def create_table():
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS pdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
-                        size INTEGER,
+                        msg INTEGER,
                         cpu_usage FLOAT,
                         ram_usage FLOAT
                     )''')
@@ -41,9 +41,9 @@ def get_cpu_usage(process_id):
     except subprocess.CalledProcessError:
         return None
 
-def insert_data(cursor, size, process_id):
+def insert_data(cursor, msg, process_id):
     cpu_usage, ram_usage = get_cpu_usage(process_id)
-    cursor.execute("INSERT INTO pdata (size, cpu_usage, ram_usage) VALUES (?, ?, ?)", (size, cpu_usage, ram_usage))
+    cursor.execute("INSERT INTO pdata (msg, cpu_usage, ram_usage) VALUES (?, ?, ?)", (msg, cpu_usage, ram_usage))
 
 def get_wifi_signal_strength(interface):
     try:
