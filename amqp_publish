@@ -62,7 +62,7 @@ def publish(channel):
     try:
         conn = sqlite3.connect('pdata.db')
         cursor = conn.cursor()
-        x=0
+        x=1
         time.sleep(100)
         while x<=5: 
             msg_count = 1
