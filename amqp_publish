@@ -69,11 +69,9 @@ def publish(channel):
             while msg_count <= 100:
                 #time.sleep(1)
                 msg = f"29.7775657768-{x}"
-                size = len(msg)
-
                 channel.basic_publish(exchange='', routing_key='hello', body=msg)
 
-                print(f"Sending {size} to queue `hello`")
+                print(f"Sending {msg} to queue `hello`")
                 insert_data(cursor, msg, process_id)
                 msg_count += 1
             x += 1
