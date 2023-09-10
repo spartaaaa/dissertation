@@ -19,7 +19,8 @@ with sqlite3.connect('pdata.db') as conn:
     cursor.execute('''CREATE TABLE IF NOT EXISTS pdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER,
-                        cpu_usage FLOAT
+                        cpu_usage FLOAT,
+                        ram_usage FLOAT
                     )''')
     conn.commit()
 
@@ -27,18 +28,20 @@ with sqlite3.connect('pdata.db') as conn:
 def get_cpu_usage(process_id):
     try:
         # Run the 'ps' command to get the CPU usage for the specified process ID
-        command = f"ps -p {process_id} -o %cpu"
+        command = f"ps -p {process_id} -o %cpu,%mem"
         result = subprocess.check_output(command, shell=True, text=True)
         
-        # Extract the CPU value from the result
-        cpu_value = result.strip().split('\n')[1]  # Assuming the second line contains the CPU value
-        return float(cpu_value)
+        # Extract CPU and RAM values from the result
+        lines = result.strip().split('\n')
+        cpu_value = float(lines[1].split()[0]) if len(lines) > 1 else None
+        ram_value = float(lines[1].split()[1]) if len(lines) > 1 else None
+        return cpu_value, ram_value
     except subprocess.CalledProcessError:
         return None
 
 def insert_data(cursor, size, process_id):
-    cpu_usage = get_cpu_usage(process_id)
-    cursor.execute("INSERT INTO pdata (size, cpu_usage) VALUES (?, ?)", (size, cpu_usage))
+    cpu_usage, ram_usage = get_cpu_usage(process_id)
+    cursor.execute("INSERT INTO pdata (size, cpu_usage, ram_usage) VALUES (?, ?, ?)", (size, cpu_usage, ram_usage))
 
 def get_wifi_signal_strength(interface):
     try:
