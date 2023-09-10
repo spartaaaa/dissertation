@@ -6,7 +6,7 @@ import os
 from paho.mqtt import client as mqtt_client
 import subprocess
 
-broker = 'broker.local'
+broker = 'broker'
 port = 8883
 topic = "testTopic"
 client_id = f'python-mqtt-{random.randint(0, 1000)}'
