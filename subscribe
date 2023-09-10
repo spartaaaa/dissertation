@@ -35,7 +35,7 @@ def get_resource_usage(process_id):
     except subprocess.CalledProcessError:
         return None
 
-def insert_data(cursor, size, process_id):
+def insert_data(cursor, msg, process_id):
     cpu_usage, ram_usage = get_resource_usage(process_id)
     cursor.execute("INSERT INTO sdata (msg, cpu_usage, ram_usage) VALUES (?, ?, ?)", (msg, cpu_usage, ram_usage))
 
