@@ -16,25 +16,28 @@ with sqlite3.connect('sdata.db') as conn:
     cursor.execute('''CREATE TABLE IF NOT EXISTS sdata (
                         time TIMESTAMP DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),
                         size INTEGER,
-                        cpu_usage FLOAT
+                        cpu_usage FLOAT,
+                        ram_usage FLOAT
                     )''')
     conn.commit()
 
-def get_cpu_usage(process_id):
+def get_resource_usage(process_id):
     try:
         # Run the 'ps' command to get the CPU usage for the specified process ID
-        command = f"ps -p {process_id} -o %cpu"
+        command = f"ps -p {process_id} -o %cpu,%mem"
         result = subprocess.check_output(command, shell=True, text=True)
         
-        # Extract the CPU value from the result
-        cpu_value = result.strip().split('\n')[1]  # Assuming the second line contains the CPU value
-        return float(cpu_value)
+        # Extract CPU and RAM values from the result
+        lines = result.strip().split('\n')
+        cpu_value = float(lines[1].split()[0]) if len(lines) > 1 else None
+        ram_value = float(lines[1].split()[1]) if len(lines) > 1 else None
+        return cpu_value, ram_value
     except subprocess.CalledProcessError:
         return None
 
 def insert_data(cursor, size, process_id):
-    cpu_usage = get_cpu_usage(process_id)
-    cursor.execute("INSERT INTO sdata (size, cpu_usage) VALUES (?, ?)", (size, cpu_usage))
+    cpu_usage, ram_usage = get_resource_usage(process_id)
+    cursor.execute("INSERT INTO sdata (size, cpu_usage, ram_usage) VALUES (?, ?, ?)", (size, cpu_usage, ram_usage))
 
 def get_wifi_signal_strength(interface):
     try:
@@ -57,18 +60,11 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     payload_str = msg.payload.decode()  # Convert the payload from bytes to string
 
-    # Get the size of the received message
-    size = len(payload_str)
-
-    # Convert the size to a string
-    size_str = str(size)
-    print(size_str)
-
     # Connect to the SQLite database (the table should already exist)
     conn = sqlite3.connect('sdata.db')
     cursor = conn.cursor()
 
-    insert_data(cursor, size_str, process_id)  # Insert data into the database
+    insert_data(cursor, payload_str, process_id)  # Insert data into the database
 
     # Commit and close the database connection
     conn.commit()
