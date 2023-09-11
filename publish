@@ -91,7 +91,6 @@ def publish(client):
         while x<=5: 
             msg_count = 1
             while msg_count <= 100:
-                #time.sleep(1)
                 msg = f"25.7775657768-{x}"
                 
                 result = client.publish(topic, msg, qos=2)
